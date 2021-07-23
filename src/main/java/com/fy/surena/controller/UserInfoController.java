@@ -11,7 +11,6 @@ import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.UserInfo;
 import com.fy.surena.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,8 +87,9 @@ public class UserInfoController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Void> updateUserInfo(@PathVariable Long id,
-                                               @RequestBody UserInfoUpdateDto userInfoUpdateDto) {
+    @ResponseBody
+    public ResponseEntity<UserInfoUpdateDto> updateUserInfo(@PathVariable Long id,
+                                                            @RequestBody UserInfoUpdateDto userInfoUpdateDto) {
         if (!userInfoService.isExistId(id)) {
             throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
         }
@@ -99,17 +99,18 @@ public class UserInfoController {
         userInfoService.EditUserInfo(userInfoUpdateDto.getFirstname(),
                 userInfoUpdateDto.getLastname(), modify_date.format(now), id);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(userInfoUpdateDto,HttpStatus.OK);
 
     }
 
     @GetMapping("/user/{id}")
-    public UserInfo getUserInfoById(@PathVariable Long id) {
+    public ResponseEntity<UserInfo> getUserInfoById(@PathVariable Long id) {
 
         if (!userInfoService.isExistId(id)) {
             throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
         }
-        return userInfoService.getUserInfoById(id);
+        UserInfo userInfo =  userInfoService.getUserInfoById(id);
+        return new ResponseEntity<>(userInfo,HttpStatus.OK);
     }
 
     @GetMapping("/get/{username}")
@@ -123,8 +124,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/all")
-    public List<UserInfo> getAll() {
-        return userInfoService.getUsersInfo();
+    public ResponseEntity<List<UserInfo>> getAll() {
+        List<UserInfo> userInfos = userInfoService.getUsersInfo();
+        return new ResponseEntity<List<UserInfo>>(userInfos,HttpStatus.OK);
 
     }
 
