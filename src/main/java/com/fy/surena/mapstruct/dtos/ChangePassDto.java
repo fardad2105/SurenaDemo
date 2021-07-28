@@ -12,6 +12,11 @@ import javax.validation.constraints.NotNull;
 public class ChangePassDto {
 
     @NotNull
+    @NotBlank(message = "username cannot be empty for change password")
+    @JsonProperty("username")
+    private String username;
+
+    @NotNull
     @NotBlank(message = "new password cannot be empty")
     @JsonProperty("newPassword")
     private String newPass;

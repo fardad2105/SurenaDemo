@@ -8,13 +8,14 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Modifying
-    @Query("delete from UserInfo u where u.firstname = ?1")
+    @Query("delete from UserInfo u where u.username = ?1")
     void deleteUserInfoByUserName(String username);
 
 
@@ -34,6 +35,10 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Query("select count (u) = 1 from UserInfo u where u.username = ?1")
     boolean isUserExistWithUsername(String username);
+
+
+    Optional<UserInfo> findByUsername(String username);
+
 
 
 

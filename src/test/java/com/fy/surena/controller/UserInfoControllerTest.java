@@ -144,9 +144,6 @@ class UserInfoControllerTest {
 //                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(7));
     }
 
-    @Test
-    void getUserInfoByUsername() {
-    }
 
     @Test
     void getAll() throws Exception {
@@ -159,9 +156,6 @@ class UserInfoControllerTest {
 
     }
 
-    @Test
-    void changePass() {
-    }
 
     public static String asJsonString(final Object obj){
         try{

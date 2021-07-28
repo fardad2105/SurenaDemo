@@ -38,50 +38,23 @@ public class UserInfoController {
     @PostMapping
     public ResponseEntity<Void> create(@Valid @RequestBody UserInfoDto userInfoDto,
                                        BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors())
             throw new InputFieldException(bindingResult);
-        } else if (userInfoService.isExistUsername(userInfoDto.getUsername())) {
-            throw new UserExists("User with this username:" + userInfoDto.getUsername() + "is Exists");
-        } else {
-            SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date now = new Date();
-            userInfoDto.setCreateDate(create_date.format(now));
-
-            // Encrypt Password
-            userInfoDto.setPassword(MD5Util.string2MD5(userInfoDto.getPassword()));
-
-
-            String pwd=MD5Util.convertMD5(MD5Util.convertMD5(userInfoDto.getPassword()));
-            System.out.println(pwd);
-
-            userInfoService.save(
-                    mapStructMapper.userInfoPostToUserInfoDto(userInfoDto)
-            );
-        }
-
+        userInfoService.save(
+                mapStructMapper.userInfoPostToUserInfoDto(userInfoDto)
+        );
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-
-        if (!userInfoService.isExistId(id)) {
-            throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
-        }
-
         userInfoService.deleteUserInfoById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
-    @DeleteMapping("/{username}")
-    public ResponseEntity<Void> deleteByUsername(@PathVariable String username) {
-
-        if (!userInfoService.isExistUsername(username)) {
-            throw new UserIsNotDeleteException("User with id: " + username + "is not exists");
-        }
-
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteByUsername(@RequestParam(value = "username") String username) {
         userInfoService.deleteUserInfoByUsername(username);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -90,52 +63,35 @@ public class UserInfoController {
     @ResponseBody
     public ResponseEntity<UserInfoUpdateDto> updateUserInfo(@PathVariable Long id,
                                                             @RequestBody UserInfoUpdateDto userInfoUpdateDto) {
-        if (!userInfoService.isExistId(id)) {
-            throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
-        }
-        SimpleDateFormat modify_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date now = new Date();
-
         userInfoService.EditUserInfo(userInfoUpdateDto.getFirstname(),
-                userInfoUpdateDto.getLastname(), modify_date.format(now), id);
+                userInfoUpdateDto.getLastname(), id);
 
-        return new ResponseEntity<>(userInfoUpdateDto,HttpStatus.OK);
+        return new ResponseEntity<>(userInfoUpdateDto, HttpStatus.OK);
 
     }
 
     @GetMapping("/user/{id}")
     public ResponseEntity<UserInfo> getUserInfoById(@PathVariable Long id) {
-
-        if (!userInfoService.isExistId(id)) {
-            throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
-        }
-        UserInfo userInfo =  userInfoService.getUserInfoById(id);
-        return new ResponseEntity<>(userInfo,HttpStatus.OK);
+        UserInfo userInfo = userInfoService.getUserInfoById(id);
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
 
     @GetMapping("/get/{username}")
-    public UserInfo getUserInfoByUsername(@PathVariable String username) {
-
-        if (!userInfoService.isExistUsername(username)) {
-            throw new UserIsNotDeleteException("User with id: " + username + "is not exists");
-        }
-
-        return userInfoService.getUserInfoByUserName(username);
+    public ResponseEntity<UserInfo> getUserInfoByUsername(@PathVariable String username) {
+        UserInfo userInfo =  userInfoService.getUserInfoByUserName(username);
+        return new ResponseEntity<>(userInfo,HttpStatus.OK);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<UserInfo>> getAll() {
         List<UserInfo> userInfos = userInfoService.getUsersInfo();
-        return new ResponseEntity<List<UserInfo>>(userInfos,HttpStatus.OK);
+        return new ResponseEntity<List<UserInfo>>(userInfos, HttpStatus.OK);
 
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<Void> changePass(@RequestBody ChangePassDto changePassDto) {
-        String newPassEncrypt = MD5Util.string2MD5(changePassDto.getNewPass());
-        String oldPassEncrypt = MD5Util.string2MD5(changePassDto.getOldPass());
-
-        userInfoService.changePassword(newPassEncrypt,oldPassEncrypt);
+        userInfoService.changePassword(changePassDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
