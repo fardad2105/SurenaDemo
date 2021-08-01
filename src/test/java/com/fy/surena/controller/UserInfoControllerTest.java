@@ -111,9 +111,9 @@ class UserInfoControllerTest {
     void deleteByUsername() {
         UserInfo userInfo = new UserInfo(3L,"Nima2120","693256478525","Nima","Zarandi","","");
         userInfoService.save(userInfo);
-        userInfoService.deleteUserInfoByUsername(userInfo.getUsername());
-        UserInfo optional = userInfoService.getUserInfoByUserName(userInfo.getUsername());
-        System.out.println(optional);
+        userInfoService.deleteByUsername(userInfo.getUsername());
+        UserInfoDto userInfoDto = userInfoService.findByUsername(userInfo.getUsername());
+        System.out.println(userInfoDto);
     }
 
     @Test

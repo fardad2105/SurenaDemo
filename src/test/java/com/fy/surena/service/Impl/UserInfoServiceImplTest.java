@@ -37,6 +37,8 @@ class UserInfoServiceImplTest {
 
     private UserInfoDto userInfoDto;
 
+    private UserInfoDto userInfoDtoSave;
+
     private UserInfo userInfo1;
 
     private UserInfoUpdateDto userInfoUpdateDto;
@@ -45,6 +47,16 @@ class UserInfoServiceImplTest {
     void setUp() {
         SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date now = new Date();
+
+        userInfoDtoSave = new UserInfoDto();
+        userInfoDtoSave.setId(1L);
+        userInfoDtoSave.setUsername("Sara2121");
+        userInfoDtoSave.setPassword("147852369987");
+        userInfoDtoSave.setFirstname("Sara");
+        userInfoDtoSave.setLastname("Niazi");
+        userInfoDtoSave.setCreateDate(create_date.format(now));
+        userInfoDtoSave.setModifiedDate(create_date.format(now));
+
 
         userInfoDto = new UserInfoDto();
         userInfoDto.setId(1L);
@@ -61,13 +73,14 @@ class UserInfoServiceImplTest {
 
     @AfterEach
     void tearDown() {
-        userInfoRepository.deleteUserInfoByUserName(userInfoDto.getUsername());
+        userInfoRepository.deleteByUsername(userInfoDto.getUsername());
+        userInfoRepository.deleteByUsername(userInfoDtoSave.getUsername());
     }
 
     @Test
     void save() {
         BindingResult result = mock(BindingResult.class);
-        ResponseEntity<Void> responseEntity = userInfoController.create(userInfoDto, result);
+        ResponseEntity<Void> responseEntity = userInfoController.create(userInfoDtoSave, result);
         checkResponseStatusCode(HttpStatus.CREATED,responseEntity);
     }
 
@@ -101,7 +114,7 @@ class UserInfoServiceImplTest {
 
     @Test
     void getUserInfoByUserName() {
-        ResponseEntity<UserInfo> responseEntity = userInfoController.getUserInfoByUsername(userInfo1.getUsername());
+        ResponseEntity<UserInfoDto> responseEntity = userInfoController.getUserInfoByUsername(userInfo1.getUsername());
         checkResponseStatusCode(HttpStatus.OK,responseEntity);
     }
 

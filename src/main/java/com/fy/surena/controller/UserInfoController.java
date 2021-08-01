@@ -1,9 +1,6 @@
 package com.fy.surena.controller;
 
-import com.fy.surena.config.MD5Util;
 import com.fy.surena.exception.InputFieldException;
-import com.fy.surena.exception.UserExists;
-import com.fy.surena.exception.UserIsNotDeleteException;
 import com.fy.surena.mapstruct.dtos.ChangePassDto;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
@@ -11,16 +8,13 @@ import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.UserInfo;
 import com.fy.surena.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -30,9 +24,6 @@ public class UserInfoController {
     private final MapStructMapper mapStructMapper;
 
     private final UserInfoService userInfoService;
-
-    @Value("${app.security_code}")
-    private String encrypt;
 
 
     @PostMapping
@@ -55,7 +46,7 @@ public class UserInfoController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteByUsername(@RequestParam(value = "username") String username) {
-        userInfoService.deleteUserInfoByUsername(username);
+        userInfoService.deleteByUsername(username);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -65,9 +56,7 @@ public class UserInfoController {
                                                             @RequestBody UserInfoUpdateDto userInfoUpdateDto) {
         userInfoService.EditUserInfo(userInfoUpdateDto.getFirstname(),
                 userInfoUpdateDto.getLastname(), id);
-
         return new ResponseEntity<>(userInfoUpdateDto, HttpStatus.OK);
-
     }
 
     @GetMapping("/user/{id}")
@@ -77,9 +66,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/get/{username}")
-    public ResponseEntity<UserInfo> getUserInfoByUsername(@PathVariable String username) {
-        UserInfo userInfo =  userInfoService.getUserInfoByUserName(username);
-        return new ResponseEntity<>(userInfo,HttpStatus.OK);
+    public ResponseEntity<UserInfoDto> getUserInfoByUsername(@PathVariable String username) {
+        UserInfoDto userInfoDto = userInfoService.findByUsername(username);
+        return new ResponseEntity<>(userInfoDto,HttpStatus.OK);
     }
 
     @GetMapping("/all")

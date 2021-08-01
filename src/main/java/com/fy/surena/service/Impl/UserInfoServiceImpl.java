@@ -5,11 +5,15 @@ import com.fy.surena.config.MD5Util;
 import com.fy.surena.exception.PasswordException;
 import com.fy.surena.exception.UserExists;
 import com.fy.surena.exception.UserIsNotDeleteException;
+import com.fy.surena.exception.UserManagerException;
 import com.fy.surena.mapstruct.dtos.ChangePassDto;
+import com.fy.surena.mapstruct.dtos.UserInfoDto;
+import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.UserInfo;
 import com.fy.surena.repository.UserInfoRepository;
 import com.fy.surena.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -26,11 +30,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     private ControllerUtils controllerUtils;
 
+    @Autowired
+    private MapStructMapper mapStructMapper;
+
 
     @Override
     public UserInfo save(UserInfo userInfo) {
-//        Optional<UserInfo> _userInfo = userInfoRepository.findByUsername(userInfo.getUsername());
-        if (userInfoRepository.isUserExistWithUsername(userInfo.getUsername())) {
+        if (userInfoRepository.existsUserInfoByUsername(userInfo.getUsername())) {
             throw new UserExists("User with this username:" + userInfo.getUsername() + "is Exists");
         } else {
             SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -54,11 +60,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public void deleteUserInfoByUsername(String username) {
-        if (!userInfoRepository.isUserExistWithUsername(username)) {
+    public void deleteByUsername(String username) {
+        if (!userInfoRepository.existsUserInfoByUsername(username)) {
             throw new UserIsNotDeleteException("User with id: " + username + "is not exists");
         } else {
-            userInfoRepository.deleteUserInfoByUserName(username);
+            userInfoRepository.deleteByUsername(username);
         }
     }
 
@@ -81,12 +87,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfo getUserInfoByUserName(String username) {
-        if (!userInfoRepository.isUserExistWithUsername(username)) {
+    public UserInfoDto findByUsername(String username) {
+        UserInfoDto userInfoDto;
+        if (!userInfoRepository.findByUsername(username).isPresent()) {
             throw new UserIsNotDeleteException("User with username: " + username + "is not exists");
+        } else {
+            userInfoDto = mapStructMapper.userInfoDtoGetByUserInfo(userInfoRepository.findByUsername(username).get());
         }
-        return userInfoRepository.getUserInfoByUsername(username);
+        return userInfoDto;
     }
+
 
     @Override
     public List<UserInfo> getUsersInfo() {
@@ -97,15 +107,20 @@ public class UserInfoServiceImpl implements UserInfoService {
     public void changePassword(ChangePassDto changePassDto) {
         String newPass = changePassDto.getNewPass();
         String oldPass = changePassDto.getOldPass();
-        if (controllerUtils.isPasswordDifferent(newPass,oldPass)) {
+        if (controllerUtils.isPasswordDifferent(newPass, oldPass)) {
             throw new PasswordException("Password do not match");
         }
-        UserInfo userInfo = userInfoRepository.getUserInfoByUsername(changePassDto.getUsername());
-        userInfo.setPassword(MD5Util.string2MD5(changePassDto.getNewPass()));
-        userInfoRepository.save(userInfo);
+        Optional<UserInfo> userInfo = userInfoRepository.findByUsername(changePassDto.getUsername());
+        if (userInfo.isPresent()) {
+            UserInfo userInfo1 = userInfo.get();
+            userInfo1.setPassword(MD5Util.string2MD5(changePassDto.getNewPass()));
+            userInfoRepository.save(userInfo1);
+        } else {
+            throw new UserManagerException("User with this username is not exists", HttpStatus.NO_CONTENT);
+        }
+
 
     }
-
 
 
 }

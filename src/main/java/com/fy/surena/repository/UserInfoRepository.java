@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,30 +14,14 @@ import java.util.Optional;
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Modifying
-    @Query("delete from UserInfo u where u.username = ?1")
-    void deleteUserInfoByUserName(String username);
-
-
-    @Modifying
     @Query("update UserInfo u set u.firstname=?1,u.lastname = ?2, u.ModifiedDate = ?3 where u.id = ?4 ")
     int updateUserInfo(String firstname, String lastname,String modify_date, Long id);
 
-
-    @Query("select  u from UserInfo u where u.username = ?1")
-    UserInfo getUserInfoByUsername(String username);
-
-
-    @Modifying
-    @Query("update UserInfo u set u.password = ?1 where u.password = ?2")
-    void changePassword(String newPass, String oldPass);
-
-
-    @Query("select count (u) = 1 from UserInfo u where u.username = ?1")
-    boolean isUserExistWithUsername(String username);
-
-
     Optional<UserInfo> findByUsername(String username);
 
+    void deleteByUsername(String username);
+
+    boolean existsUserInfoByUsername(String username);
 
 
 

@@ -17,6 +17,10 @@ public interface MapStructMapper {
             UserInfoDto userInfoDto
     );
 
+    UserInfoDto userInfoDtoGetByUserInfo(
+            UserInfo userInfo
+    );
+
 
 
 }
