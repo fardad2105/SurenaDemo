@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserInfoService {
 
-    UserInfo save(UserInfo userInfo);
+    UserInfo save(UserInfoDto userInfo);
 
     void deleteUserInfoById(Long id);
 

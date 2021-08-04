@@ -101,7 +101,7 @@ class UserInfoControllerTest {
 
     @Test
     void deleteById() {
-        UserInfo userInfo = new UserInfo(2L,"Ali2020","1254695825148","Ali","Zamani","","");
+        UserInfoDto userInfo = new UserInfoDto(2L,"Ali2020","1254695825148","Ali","Zamani","","");
         userInfoService.save(userInfo);
         userInfoService.deleteUserInfoById(userInfo.getId());
         UserInfo optional = userInfoService.getUserInfoById(userInfo.getId());
@@ -109,7 +109,7 @@ class UserInfoControllerTest {
 
     @Test
     void deleteByUsername() {
-        UserInfo userInfo = new UserInfo(3L,"Nima2120","693256478525","Nima","Zarandi","","");
+        UserInfoDto userInfo = new UserInfoDto(3L,"Nima2120","693256478525","Nima","Zarandi","","");
         userInfoService.save(userInfo);
         userInfoService.deleteByUsername(userInfo.getUsername());
         UserInfoDto userInfoDto = userInfoService.findByUsername(userInfo.getUsername());

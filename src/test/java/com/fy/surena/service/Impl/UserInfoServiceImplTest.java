@@ -1,6 +1,7 @@
 package com.fy.surena.service.Impl;
 
 import com.fy.surena.controller.UserInfoController;
+import com.fy.surena.exception.UserExists;
 import com.fy.surena.exception.UserManagerException;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
@@ -85,10 +86,36 @@ class UserInfoServiceImplTest {
     }
 
     @Test
+    void save_failed() {
+        UserInfoDto userInfoDtoSaveFailed = new UserInfoDto();
+        SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Date now = new Date();
+
+        userInfoDtoSaveFailed.setId(1L);
+        userInfoDtoSaveFailed.setUsername("Sara2121");
+        userInfoDtoSaveFailed.setPassword("147852369987");
+        userInfoDtoSaveFailed.setFirstname("Sara");
+        userInfoDtoSaveFailed.setLastname("Niazi");
+        userInfoDtoSaveFailed.setCreateDate(create_date.format(now));
+        userInfoDtoSaveFailed.setModifiedDate(create_date.format(now));
+
+        BindingResult result = mock(BindingResult.class);
+        if (userInfoRepository.existsUserInfoByUsername(userInfoDtoSaveFailed.getUsername())) {
+            throw new UserExists("User with this username:" + userInfoDtoSaveFailed.getUsername() + "is Exists");
+        }
+        else {
+            ResponseEntity<Void> responseEntity = userInfoController.create(userInfoDtoSave, result);
+            checkResponseStatusCode(HttpStatus.CREATED,responseEntity);
+        }
+
+    }
+
+    @Test
     void deleteUserInfoById() {
         ResponseEntity<Void> responseEntity = userInfoController.deleteById(userInfo1.getId());
         checkResponseStatusCode(HttpStatus.OK,responseEntity);
     }
+
 
     @Test
     void deleteUserInfoByUsername() {
@@ -123,6 +150,8 @@ class UserInfoServiceImplTest {
         ResponseEntity<List<UserInfo>> responseEntity = userInfoController.getAll();
         checkResponseStatusCode(HttpStatus.OK,responseEntity);
     }
+
+
 
 
     private void checkErrorResponseStatusCode(UserManagerException exception, HttpStatus status, String errorMessage) {

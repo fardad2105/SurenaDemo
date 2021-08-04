@@ -35,7 +35,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
-    public UserInfo save(UserInfo userInfo) {
+    public UserInfo save(UserInfoDto userInfo) {
         if (userInfoRepository.existsUserInfoByUsername(userInfo.getUsername())) {
             throw new UserExists("User with this username:" + userInfo.getUsername() + "is Exists");
         } else {
@@ -47,7 +47,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             userInfo.setPassword(MD5Util.string2MD5(userInfo.getPassword()));
 
         }
-        return userInfoRepository.save(userInfo);
+        return userInfoRepository.save(mapStructMapper.userInfoPostToUserInfoDto(userInfo));
     }
 
     @Override

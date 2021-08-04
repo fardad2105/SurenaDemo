@@ -21,8 +21,6 @@ import java.util.List;
 @RequestMapping("api/users")
 public class UserInfoController {
 
-    private final MapStructMapper mapStructMapper;
-
     private final UserInfoService userInfoService;
 
 
@@ -31,9 +29,7 @@ public class UserInfoController {
                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             throw new InputFieldException(bindingResult);
-        userInfoService.save(
-                mapStructMapper.userInfoPostToUserInfoDto(userInfoDto)
-        );
+        userInfoService.save(userInfoDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
