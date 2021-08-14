@@ -16,9 +16,9 @@ public interface UserInfoService {
 
     int EditUserInfo(String firstname, String lastname, Long id);
 
-    UserInfo getUserInfoById(Long id);
+    UserInfoDto getUserInfoById(Long id);
 
-    List<UserInfo> getUsersInfo();
+    List<UserInfoDto> getUsersInfo();
 
     void changePassword(ChangePassDto changePassDto);
 

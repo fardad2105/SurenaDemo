@@ -4,8 +4,6 @@ import com.fy.surena.exception.InputFieldException;
 import com.fy.surena.mapstruct.dtos.ChangePassDto;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
-import com.fy.surena.mapstruct.mappers.MapStructMapper;
-import com.fy.surena.model.UserInfo;
 import com.fy.surena.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -56,9 +54,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<UserInfo> getUserInfoById(@PathVariable Long id) {
-        UserInfo userInfo = userInfoService.getUserInfoById(id);
-        return new ResponseEntity<>(userInfo, HttpStatus.OK);
+    public ResponseEntity<UserInfoDto> getUserInfoById(@PathVariable Long id) {
+        UserInfoDto userInfo = userInfoService.getUserInfoById(id);
+        return new ResponseEntity<UserInfoDto>(userInfo, HttpStatus.OK);
     }
 
     @GetMapping("/get/{username}")
@@ -68,9 +66,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserInfo>> getAll() {
-        List<UserInfo> userInfos = userInfoService.getUsersInfo();
-        return new ResponseEntity<List<UserInfo>>(userInfos, HttpStatus.OK);
+    public ResponseEntity<List<UserInfoDto>> getAll() {
+        List<UserInfoDto> userInfos = userInfoService.getUsersInfo();
+        return new ResponseEntity<List<UserInfoDto>>(userInfos, HttpStatus.OK);
 
     }
 

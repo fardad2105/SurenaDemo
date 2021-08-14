@@ -104,7 +104,7 @@ class UserInfoControllerTest {
         UserInfoDto userInfo = new UserInfoDto(2L,"Ali2020","1254695825148","Ali","Zamani","","");
         userInfoService.save(userInfo);
         userInfoService.deleteUserInfoById(userInfo.getId());
-        UserInfo optional = userInfoService.getUserInfoById(userInfo.getId());
+        UserInfoDto optional = userInfoService.getUserInfoById(userInfo.getId());
     }
 
     @Test
@@ -131,7 +131,7 @@ class UserInfoControllerTest {
 
     @Test
     void getUserInfoById() throws Exception {
-        UserInfo userInfo = new UserInfo(5l,"John2121","253614256985","John","Esmit","","");
+        UserInfoDto userInfo = new UserInfoDto(5l,"John2121","253614256985","John","Esmit","","");
 //        userInfoService.save(userInfo);
 //        UserInfo user = userInfoService.getUserInfoById(userInfo.getId());
 //        System.out.println(user);
@@ -147,7 +147,7 @@ class UserInfoControllerTest {
 
     @Test
     void getAll() throws Exception {
-        List<UserInfo> userInfos = Arrays.asList(new UserInfo(5l,"John2121","253614256985","John","Esmit","",""));
+        List<UserInfoDto> userInfos = Arrays.asList(new UserInfoDto(5l,"John2121","253614256985","John","Esmit","",""));
         when(userInfoService.getUsersInfo()).thenReturn(userInfos);
         mockMvc.perform(MockMvcRequestBuilders.get("/api/users/all").
                 contentType(MediaType.APPLICATION_JSON).

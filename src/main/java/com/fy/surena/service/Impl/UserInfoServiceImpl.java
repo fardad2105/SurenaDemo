@@ -2,10 +2,7 @@ package com.fy.surena.service.Impl;
 
 import com.fy.surena.config.ControllerUtils;
 import com.fy.surena.config.MD5Util;
-import com.fy.surena.exception.PasswordException;
-import com.fy.surena.exception.UserExists;
-import com.fy.surena.exception.UserIsNotDeleteException;
-import com.fy.surena.exception.UserManagerException;
+import com.fy.surena.exception.*;
 import com.fy.surena.mapstruct.dtos.ChangePassDto;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
@@ -17,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -28,16 +26,13 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserInfoRepository userInfoRepository;
 
     @Autowired
-    private ControllerUtils controllerUtils;
-
-    @Autowired
     private MapStructMapper mapStructMapper;
 
 
     @Override
     public UserInfo save(UserInfoDto userInfo) {
         if (userInfoRepository.existsUserInfoByUsername(userInfo.getUsername())) {
-            throw new UserExists("User with this username:" + userInfo.getUsername() + "is Exists");
+            throw new UserManagerException("User with this username:" + userInfo.getUsername() + " is Exists",HttpStatus.CONFLICT);
         } else {
             SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             Date now = new Date();
@@ -53,7 +48,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public void deleteUserInfoById(Long id) {
         if (!userInfoRepository.existsById(id)) {
-            throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
+            throw new UserManagerException("User with id: " + id + " is not exists",HttpStatus.NOT_FOUND);
         } else {
             userInfoRepository.deleteById(id);
         }
@@ -62,7 +57,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public void deleteByUsername(String username) {
         if (!userInfoRepository.existsUserInfoByUsername(username)) {
-            throw new UserIsNotDeleteException("User with id: " + username + "is not exists");
+            throw new UserManagerException("User with username: " + username + " is not exists",HttpStatus.NOT_FOUND);
         } else {
             userInfoRepository.deleteByUsername(username);
         }
@@ -71,7 +66,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public int EditUserInfo(String firstname, String lastname, Long id) {
         if (!userInfoRepository.existsById(id)) {
-            throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
+            throw new UserManagerException("User with id: " + id + " is not exists",HttpStatus.NOT_FOUND);
         }
         SimpleDateFormat modify_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date now = new Date();
@@ -79,18 +74,21 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfo getUserInfoById(Long id) {
+    public UserInfoDto getUserInfoById(Long id) {
         if (!userInfoRepository.existsById(id)) {
-            throw new UserIsNotDeleteException("User with id: " + id + "is not exists");
+            throw new UserManagerException("User with id: " + id + " is not exists",HttpStatus.NOT_FOUND);
         }
-        return userInfoRepository.findById(id).get();
+        UserInfoDto userInfoDto = mapStructMapper.userInfoDtoGetByUserInfo(
+                userInfoRepository.findById(id).get()
+        );
+        return userInfoDto;
     }
 
     @Override
     public UserInfoDto findByUsername(String username) {
         UserInfoDto userInfoDto;
         if (!userInfoRepository.findByUsername(username).isPresent()) {
-            throw new UserIsNotDeleteException("User with username: " + username + "is not exists");
+            throw new UserManagerException("User with username: " + username + " is not exists",HttpStatus.NOT_FOUND);
         } else {
             userInfoDto = mapStructMapper.userInfoDtoGetByUserInfo(userInfoRepository.findByUsername(username).get());
         }
@@ -99,15 +97,20 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
-    public List<UserInfo> getUsersInfo() {
-        return userInfoRepository.findAll();
+    public List<UserInfoDto> getUsersInfo() {
+        List<UserInfoDto> userInfoDtos = new ArrayList<>();
+        for (UserInfo users:
+             userInfoRepository.findAll()) {
+            userInfoDtos.add(mapStructMapper.userInfoDtoGetByUserInfo(users));
+        }
+        return userInfoDtos;
     }
 
     @Override
     public void changePassword(ChangePassDto changePassDto) {
         String newPass = changePassDto.getNewPass();
         String oldPass = changePassDto.getOldPass();
-        if (controllerUtils.isPasswordDifferent(newPass, oldPass)) {
+        if (ControllerUtils.isPasswordDifferent(newPass, oldPass)) {
             throw new PasswordException("Password do not match");
         }
         Optional<UserInfo> userInfo = userInfoRepository.findByUsername(changePassDto.getUsername());

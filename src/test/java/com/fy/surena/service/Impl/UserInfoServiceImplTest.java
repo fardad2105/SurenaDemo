@@ -1,7 +1,7 @@
 package com.fy.surena.service.Impl;
 
+import com.fy.surena.config.Message;
 import com.fy.surena.controller.UserInfoController;
-import com.fy.surena.exception.UserExists;
 import com.fy.surena.exception.UserManagerException;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
@@ -101,7 +101,7 @@ class UserInfoServiceImplTest {
 
         BindingResult result = mock(BindingResult.class);
         if (userInfoRepository.existsUserInfoByUsername(userInfoDtoSaveFailed.getUsername())) {
-            throw new UserExists("User with this username:" + userInfoDtoSaveFailed.getUsername() + "is Exists");
+            throw new UserManagerException("User with this username:" + userInfoDtoSaveFailed.getUsername() + "is Exists",HttpStatus.CONFLICT);
         }
         else {
             ResponseEntity<Void> responseEntity = userInfoController.create(userInfoDtoSave, result);
@@ -134,8 +134,28 @@ class UserInfoServiceImplTest {
     }
 
     @Test
+    void editWhenUserNotExist() {
+        checkErrorResponseStatusCode(assertThrows(UserManagerException.class, () -> userInfoController.updateUserInfo(20L, new UserInfoUpdateDto("Ali","Zamani"))),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteWhenUserWithIdNotExists() {
+        checkErrorResponseStatusCode(assertThrows(UserManagerException.class, ()-> userInfoController.deleteById(20l)),
+                HttpStatus.NOT_FOUND
+                );
+    }
+
+    @Test
+    void deleteWhenUserWithUsernameNotExists() {
+        checkErrorResponseStatusCode(assertThrows(UserManagerException.class, () -> userInfoController.deleteByUsername("Ali2105")),
+                HttpStatus.NOT_FOUND
+                );
+    }
+
+    @Test
     void getUserInfoById() {
-        ResponseEntity<UserInfo> responseEntity = userInfoController.getUserInfoById(userInfo1.getId());
+        ResponseEntity<UserInfoDto> responseEntity = userInfoController.getUserInfoById(userInfo1.getId());
         checkResponseStatusCode(HttpStatus.OK,responseEntity);
     }
 
@@ -147,21 +167,20 @@ class UserInfoServiceImplTest {
 
     @Test
     void getUsersInfo() {
-        ResponseEntity<List<UserInfo>> responseEntity = userInfoController.getAll();
+        ResponseEntity<List<UserInfoDto>> responseEntity = userInfoController.getAll();
         checkResponseStatusCode(HttpStatus.OK,responseEntity);
     }
 
 
 
 
-    private void checkErrorResponseStatusCode(UserManagerException exception, HttpStatus status, String errorMessage) {
+    private void checkErrorResponseStatusCode(UserManagerException exception, HttpStatus status) {
         assertNotNull(exception);
         HttpStatus statusCode = exception.getHttpStatus();
         assertNotNull(statusCode);
         assertEquals(status, statusCode);
         String message = exception.getMessage();
         assertNotNull(message);
-        assertEquals(errorMessage, message);
     }
 
     private void checkResponseStatusCode(HttpStatus httpStatus, ResponseEntity<?> responseEntity) {
