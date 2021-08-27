@@ -25,7 +25,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("message",ex.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(body, ex.getHttpStatus());
     }
 
     @ExceptionHandler(PasswordException.class)
@@ -36,6 +36,6 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         body.put("timestamp",LocalDateTime.now());
         body.put("message","Password is not Match");
 
-        return new ResponseEntity<>(body,HttpStatus.CONFLICT);
+        return new ResponseEntity<>(body,ex.getHttpStatus());
     }
 }

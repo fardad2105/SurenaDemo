@@ -32,7 +32,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public UserInfo save(UserInfoDto userInfo) {
         if (userInfoRepository.existsUserInfoByUsername(userInfo.getUsername())) {
-            throw new UserManagerException("User with this username:" + userInfo.getUsername() + " is Exists",HttpStatus.CONFLICT);
+            throw new UserExistsException("User with this username:" + userInfo.getUsername() + " is Exists",HttpStatus.CONFLICT);
         } else {
             SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             Date now = new Date();

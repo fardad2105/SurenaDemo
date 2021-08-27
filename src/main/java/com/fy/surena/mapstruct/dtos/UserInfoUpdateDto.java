@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class UserInfoUpdateDto {
 
+
     @NotNull
     @NotBlank(message = "firstname cannot be empty")
     @JsonProperty("firstname")

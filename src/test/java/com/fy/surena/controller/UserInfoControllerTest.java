@@ -31,6 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -92,7 +93,7 @@ class UserInfoControllerTest {
     @Test
     void create() throws Exception {
         when(userInfoService.save(any())).thenReturn(userInfo);
-        mockMvc.perform(post("/api/users").
+        MvcResult mvcResult = mockMvc.perform(post("/api/users").
                 contentType(MediaType.APPLICATION_JSON).
                 content(asJsonString(userInfo))).
                 andExpect(status().isOk()).andReturn();
