@@ -1,7 +1,5 @@
 package com.fy.surena.service.Impl;
 
-import com.fy.surena.config.Message;
-import com.fy.surena.controller.UserInfoController;
 import com.fy.surena.exception.UserManagerException;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
@@ -15,17 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.isNotNull;
-import static org.mockito.Mockito.mock;
 
 @SpringBootTest
 class UserInfoServiceImplTest {
@@ -33,8 +26,6 @@ class UserInfoServiceImplTest {
     @Autowired
     private UserInfoRepository userInfoRepository;
 
-    @Autowired
-    private UserInfoController userInfoController;
 
     @Autowired
     private UserInfoService userInfoService;
