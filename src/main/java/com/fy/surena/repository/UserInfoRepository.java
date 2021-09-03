@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Repository
-@Transactional
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Modifying

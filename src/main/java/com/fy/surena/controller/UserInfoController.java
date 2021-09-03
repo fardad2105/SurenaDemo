@@ -23,18 +23,18 @@ public class UserInfoController {
 
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody UserInfoDto userInfoDto,
+    public ResponseEntity<UserInfoDto> create(@Valid @RequestBody UserInfoDto userInfoDto,
                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             throw new InputFieldException(bindingResult);
         userInfoService.save(userInfoDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(userInfoDto,HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+    public ResponseEntity<String> deleteById(@PathVariable Long id) {
         userInfoService.deleteUserInfoById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("User is deleted",HttpStatus.OK);
     }
 
 

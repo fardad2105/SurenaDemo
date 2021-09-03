@@ -42,6 +42,7 @@ class UserInfoServiceImplTest {
 
     @BeforeEach
     void setUp() {
+//        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
         SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date now = new Date();
 

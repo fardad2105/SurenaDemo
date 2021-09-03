@@ -12,6 +12,7 @@ import com.fy.surena.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
@@ -29,6 +31,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     private MapStructMapper mapStructMapper;
 
 
+    @Transactional
     @Override
     public UserInfo save(UserInfoDto userInfo) {
         if (userInfoRepository.existsUserInfoByUsername(userInfo.getUsername())) {
@@ -108,14 +111,12 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public void changePassword(ChangePassDto changePassDto) {
-        String newPass = changePassDto.getNewPass();
-        String oldPass = changePassDto.getOldPass();
-        if (ControllerUtils.isPasswordDifferent(newPass, oldPass)) {
-            throw new PasswordException("Password do not match");
-        }
         Optional<UserInfo> userInfo = userInfoRepository.findByUsername(changePassDto.getUsername());
         if (userInfo.isPresent()) {
             UserInfo userInfo1 = userInfo.get();
+            if (ControllerUtils.isPasswordDifferent(MD5Util.string2MD5(changePassDto.getNewPass()), userInfo1.getPassword())) {
+                throw new PasswordException("Password do not match");
+            }
             userInfo1.setPassword(MD5Util.string2MD5(changePassDto.getNewPass()));
             userInfoRepository.save(userInfo1);
         } else {
