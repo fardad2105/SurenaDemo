@@ -1,6 +1,7 @@
 package com.fy.surena.mapstruct.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fy.surena.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -46,4 +48,5 @@ public class UserInfoDto {
 
     @JsonProperty("modified_date")
     private String  ModifiedDate;
+
 }
