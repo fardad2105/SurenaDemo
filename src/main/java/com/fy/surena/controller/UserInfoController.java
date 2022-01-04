@@ -4,6 +4,7 @@ import com.fy.surena.exception.InputFieldException;
 import com.fy.surena.mapstruct.dtos.ChangePassDto;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
+import com.fy.surena.model.Permission;
 import com.fy.surena.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -77,6 +78,4 @@ public class UserInfoController {
         userInfoService.changePassword(changePassDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 }

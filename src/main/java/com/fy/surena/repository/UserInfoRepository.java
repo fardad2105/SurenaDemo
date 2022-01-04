@@ -25,7 +25,8 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     boolean existsUserInfoByUsername(String username);
 
-
+//    @Query("SELECT UserInfo.roles.permissions FROM user where user.userId = :userId ")
+//    List<Permission> getUserPermissions(@Param("userId") Long userId);
 
 
 }

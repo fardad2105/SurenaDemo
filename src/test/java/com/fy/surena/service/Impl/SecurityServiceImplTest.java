@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -119,11 +120,21 @@ class SecurityServiceImplTest {
 
     @Test
     void addPermissionOnRole() {
-        //TODO: remain
+        securityService.addPermissionOnRole(savedRole.getId(),savedPermission.getId());
+        Set<Permission> permissions = roleService.findById(savedRole.getId()).get().getPermissions();
+        assertTrue(permissions.size() != 0);
+        securityService.removePermissionOnRole(savedRole.getId(),savedPermission.getId());
     }
 
     @Test
     void removePermissionOnRole() {
-        //TODO: remain
+        Set<Permission> permissions;
+       securityService.addPermissionOnRole(savedRole.getId(),savedPermission.getId());
+       permissions = roleService.findById(savedRole.getId()).get().getPermissions();
+        assertTrue(permissions.size() != 0);
+        securityService.removePermissionOnRole(savedRole.getId(),savedPermission.getId());
+        permissions = roleService.findById(savedRole.getId()).get().getPermissions();
+        assertEquals(0, permissions.size());
+
     }
 }

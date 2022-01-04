@@ -55,7 +55,6 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public Set<Role> getUserRoles(long userId) {
         Optional<UserInfo> userInfo = userInfoRepository.findById(userId);
-        System.out.println(userInfo);
         return userInfo.get().getRoles();
     }
 
@@ -126,10 +125,6 @@ public class SecurityServiceImpl implements SecurityService {
 //    @Override
 //    public List<Permission> getUserPermissions(long userId) {
 //        List<Permission> permissions = userInfoRepository.getUserPermissions(userId);
-//        Optional<UserInfo> userInfo = userInfoRepository.findById(userId);
-//        userInfo.get().getRoles().forEach(role -> {
-//            permissions.
-////        });
 //        return permissions;
 //    }
 

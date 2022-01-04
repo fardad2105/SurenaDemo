@@ -1,5 +1,6 @@
 package com.fy.surena.controller;
 
+import com.fy.surena.model.Permission;
 import com.fy.surena.model.Role;
 import com.fy.surena.service.SecurityService;
 import org.springframework.http.HttpStatus;
@@ -54,4 +55,11 @@ public class SecurityController {
         securityService.removePermissionOnRole(roleId,permissionId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+//    @GetMapping("/get-user-permission/{userId}")
+//    public ResponseEntity<List<Permission>> getUserPermissions(@PathVariable("userId") Long userId) {
+//        List<Permission> permissions =  securityService.getUserPermissions(userId);
+//        return new ResponseEntity<>(permissions,HttpStatus.OK);
+//    }
+
 }

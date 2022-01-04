@@ -124,7 +124,6 @@ public class UserInfoServiceImpl implements UserInfoService {
             throw new UserManagerException("User with this username is not exists", HttpStatus.NO_CONTENT);
         }
 
-
     }
 
 
