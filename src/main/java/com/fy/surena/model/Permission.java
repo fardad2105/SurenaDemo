@@ -2,6 +2,7 @@ package com.fy.surena.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,7 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class Permission {
+@EqualsAndHashCode(callSuper = true)
+public class Permission extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,20 +21,16 @@ public class Permission {
     private String description;
     private String content;
     private boolean active;
-    private String createdAt;
-    private String updatedAt;
 
     public Permission() {
     }
 
-    public Permission(int id, String title, String description, String content, boolean active, String createdAt, String updatedAt) {
+    public Permission(int id, String title, String description, String content, boolean active) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.content = content;
         this.active = active;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     public int getId() {
@@ -73,21 +71,5 @@ public class Permission {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

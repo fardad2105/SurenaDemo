@@ -16,8 +16,8 @@ import java.util.Optional;
 public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     @Modifying
-    @Query("update UserInfo u set u.firstname=?1,u.lastname = ?2, u.ModifiedDate = ?3 where u.id = ?4 ")
-    int updateUserInfo(String firstname, String lastname,String modify_date, Long id);
+    @Query("update UserInfo u set u.firstname=?1,u.lastname = ?2 where u.id = ?3 ")
+    int updateUserInfo(String firstname, String lastname, Long id);
 
     Optional<UserInfo> findByUsername(String username);
 
@@ -25,8 +25,6 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Long> {
 
     boolean existsUserInfoByUsername(String username);
 
-//    @Query("SELECT UserInfo.roles.permissions FROM user where user.userId = :userId ")
-//    List<Permission> getUserPermissions(@Param("userId") Long userId);
 
 
 }

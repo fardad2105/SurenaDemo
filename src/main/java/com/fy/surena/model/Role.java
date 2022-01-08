@@ -2,7 +2,10 @@ package com.fy.surena.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -11,7 +14,8 @@ import java.util.Set;
 
 
 @Entity
-public class Role {
+@EqualsAndHashCode(callSuper = true)
+public class Role extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +24,6 @@ public class Role {
     private String description;
     private String content;
     private boolean active;
-    private String createAtDate;
-    private String updateAtDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "role_permission",
@@ -32,14 +34,12 @@ public class Role {
     public Role() {
     }
 
-    public Role(int id, String title, String description, String content, boolean active, String createAtDate, String updateAtDate, Set<Permission> permissions) {
+    public Role(int id, String title, String description, String content, boolean active, Set<Permission> permissions) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.content = content;
         this.active = active;
-        this.createAtDate = createAtDate;
-        this.updateAtDate = updateAtDate;
         this.permissions = permissions;
     }
 
@@ -83,21 +83,6 @@ public class Role {
         this.active = active;
     }
 
-    public String getCreateAtDate() {
-        return createAtDate;
-    }
-
-    public void setCreateAtDate(String createAtDate) {
-        this.createAtDate = createAtDate;
-    }
-
-    public String getUpdateAtDate() {
-        return updateAtDate;
-    }
-
-    public void setUpdateAtDate(String updateAtDate) {
-        this.updateAtDate = updateAtDate;
-    }
 
     public Set<Permission> getPermissions() {
         return permissions;

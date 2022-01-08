@@ -1,6 +1,7 @@
 package com.fy.surena.service.Impl;
 
 import com.fy.surena.mapstruct.dtos.request.PermissionRequestDto;
+import com.fy.surena.mapstruct.dtos.response.PermissionResponseDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.Permission;
 import com.fy.surena.service.PermissionService;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.SimpleDateFormat;
@@ -23,12 +25,13 @@ class PermissionServiceImplTest {
     @Autowired
     private PermissionService permissionService;
 
+    @Qualifier("mapStructMapperImpl")
     @Autowired
     private MapStructMapper mapper;
 
     private PermissionRequestDto permissionRequestDto;
 
-    private Permission savedPermission;
+    private PermissionResponseDto savedPermission;
 
     @BeforeEach
     void setUp() {
@@ -37,8 +40,6 @@ class PermissionServiceImplTest {
         permissionRequestDto.setDescription("this is change permission");
         permissionRequestDto.setContent("this permission just can change somethings");
         permissionRequestDto.setActive(true);
-        permissionRequestDto.setCreatedAt("");
-        permissionRequestDto.setUpdatedAt("");
     }
 
     @AfterEach
@@ -50,18 +51,15 @@ class PermissionServiceImplTest {
 
     @Test
     void savePermission() {
-        SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date now = new Date();
-        permissionRequestDto.setCreatedAt(create_date.format(now));
         savedPermission = permissionService.savePermission(permissionRequestDto);
+        assertEquals(savedPermission.getTitle(),permissionRequestDto.getTitle());
     }
 
     @Test
     void findById() {
-        //NOTICE: for test this method first your added item in permission must have READ title
-        // else please change title in assertEquals
-        Optional<Permission> findPermission = permissionService.findById(1);
-        assertEquals(findPermission.get().getTitle(),"READ");
+        savedPermission = permissionService.savePermission(permissionRequestDto);
+        Optional<Permission> findPermission = permissionService.findById(savedPermission.getId());
+        assertEquals(findPermission.get().getTitle(),savedPermission.getTitle());
     }
 
     @Test
@@ -71,9 +69,7 @@ class PermissionServiceImplTest {
         deletePermission.setDescription("this is change permission");
         deletePermission.setContent("this permission just can change somethings");
         deletePermission.setActive(true);
-        deletePermission.setCreatedAt("");
-        deletePermission.setUpdatedAt("");
-        Permission dp = permissionService.savePermission(deletePermission);
+        PermissionResponseDto dp = permissionService.savePermission(deletePermission);
         permissionService.deletePermission(dp.getId());
     }
 
@@ -81,13 +77,14 @@ class PermissionServiceImplTest {
     void updatePermission() {
         savedPermission = permissionService.savePermission(permissionRequestDto);
         savedPermission.setActive(false);
-        Permission updatePermission = permissionService.updatePermission(mapper.permissionDtoGetBypermission(savedPermission));
+        Permission permission = mapper.permissionGetByPermissionResponseDto(savedPermission);
+        PermissionResponseDto updatePermission = permissionService.updatePermission(mapper.permissionDtoGetBypermission(permission));
         assertFalse(updatePermission.isActive());
     }
 
     @Test
     void getPermissions() {
-        List<Permission> permissions = permissionService.getPermissions();
+        List<PermissionResponseDto> permissions = permissionService.getPermissions();
         assertTrue(permissions.size() != 0);
     }
 }

@@ -18,7 +18,7 @@ public interface UserInfoService {
 
     UserInfoDto getUserInfoById(Long id);
 
-    List<UserInfoDto> getUsersInfo();
+    List<UserInfo> getUsersInfo();
 
     void changePassword(ChangePassDto changePassDto);
 

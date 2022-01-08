@@ -2,13 +2,15 @@ package com.fy.surena.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-public class UserInfo {
+@EqualsAndHashCode(callSuper = true)
+public class UserInfo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +20,6 @@ public class UserInfo {
     private String password;
     private String firstname;
     private String lastname;
-    private String CreateDate;
-    private String ModifiedDate;
 
     @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
@@ -30,14 +30,12 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    public UserInfo(Long id, String username, String password, String firstname, String lastname, String createDate, String modifiedDate) {
+    public UserInfo(Long id, String username, String password, String firstname, String lastname) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
-        CreateDate = createDate;
-        ModifiedDate = modifiedDate;
     }
 
     public Long getId() {
@@ -78,22 +76,6 @@ public class UserInfo {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
-    }
-
-    public String getCreateDate() {
-        return CreateDate;
-    }
-
-    public void setCreateDate(String createDate) {
-        CreateDate = createDate;
-    }
-
-    public String getModifiedDate() {
-        return ModifiedDate;
-    }
-
-    public void setModifiedDate(String modifiedDate) {
-        ModifiedDate = modifiedDate;
     }
 
     public Set<Role> getRoles() {

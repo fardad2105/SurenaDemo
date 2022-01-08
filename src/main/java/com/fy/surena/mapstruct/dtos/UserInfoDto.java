@@ -43,10 +43,5 @@ public class UserInfoDto {
     @JsonProperty("lastname")
     private String lastname;
 
-    @JsonProperty("create_date")
-    private String CreateDate;
-
-    @JsonProperty("modified_date")
-    private String  ModifiedDate;
 
 }

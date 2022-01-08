@@ -3,6 +3,8 @@ package com.fy.surena.service.Impl;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.request.PermissionRequestDto;
 import com.fy.surena.mapstruct.dtos.request.RoleRequestDto;
+import com.fy.surena.mapstruct.dtos.response.PermissionResponseDto;
+import com.fy.surena.mapstruct.dtos.response.RoleResponseDto;
 import com.fy.surena.model.Permission;
 import com.fy.surena.model.Role;
 import com.fy.surena.model.UserInfo;
@@ -46,21 +48,18 @@ class SecurityServiceImplTest {
     private PermissionRequestDto permission;
 
     private UserInfo savedUserInfo;
-    private Role savedRole;
-    private Permission savedPermission;
+    private RoleResponseDto savedRole;
+    private PermissionResponseDto savedPermission;
 
     @BeforeEach
     void setUp() {
-        SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date now = new Date();
+
         // Initialize user
         userInfo = new UserInfoDto();
         userInfo.setUsername("Sara1010");
         userInfo.setPassword("123443210");
         userInfo.setFirstname("Sara");
         userInfo.setLastname("Abbasi");
-        userInfo.setCreateDate(create_date.format(now));
-        userInfo.setModifiedDate("");
         savedUserInfo = userInfoService.save(userInfo);
 
         // Initialize role
@@ -69,8 +68,6 @@ class SecurityServiceImplTest {
         role.setDescription("this is test role");
         role.setContent("this role have no any permission");
         role.setActive(false);
-        role.setCreateAtDate(create_date.format(now));
-        role.setUpdateAtDate("");
         savedRole = roleService.saveRole(role);
 
         // Initialize permission
@@ -79,8 +76,6 @@ class SecurityServiceImplTest {
         permission.setDescription("this is testpermission");
         permission.setContent("this permission can't do somethings");
         permission.setActive(false);
-        permission.setCreatedAt(create_date.format(now));
-        permission.setUpdatedAt("");
         savedPermission = permissionService.savePermission(permission);
     }
 

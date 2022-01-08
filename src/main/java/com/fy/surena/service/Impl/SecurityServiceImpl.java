@@ -32,21 +32,25 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public void assignUserRole(long userId, int roleId) {
-        UserInfo userInfo = userInfoRepository.findById(userId).orElse(null);
-        Role role = roleRepository.findById(roleId).orElse(null);
-        Set<Role> userRoles = userInfo.getRoles();
-        userRoles.add(role);
-        userInfo.setRoles(userRoles);
-        userInfoRepository.save(userInfo);
+        if (!userInfoRepository.findById(userId).isPresent()) {
+            throw new UserManagerException("User not found with this id"+ userId, HttpStatus.NOT_FOUND);
+        } else {
+            UserInfo userInfo = userInfoRepository.findById(userId).orElse(null);
+            Role role = roleRepository.findById(roleId).orElse(null);
+            Set<Role> userRoles = userInfo.getRoles();
+            userRoles.add(role);
+            userInfo.setRoles(userRoles);
+            userInfoRepository.save(userInfo);
+        }
+
     }
 
     @Override
     public void unassignUserRole(long userId, int roleId) {
         if (!userInfoRepository.findById(userId).isPresent()) {
-            throw new UserManagerException("User not found with this id"+ userId, HttpStatus.NOT_FOUND);
+            throw new UserManagerException("User not found with this id "+ userId, HttpStatus.NOT_FOUND);
         } else {
             UserInfo userInfo = userInfoRepository.findById(userId).get();
-            System.out.println(userInfo);
             userInfo.getRoles().removeIf(role -> role.getId() == roleId);
             userInfoRepository.save(userInfo);
         }
@@ -54,12 +58,17 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public Set<Role> getUserRoles(long userId) {
-        Optional<UserInfo> userInfo = userInfoRepository.findById(userId);
-        return userInfo.get().getRoles();
+        if (!userInfoRepository.findById(userId).isPresent()) {
+            throw new UserManagerException("User not found with this id " + userId, HttpStatus.NOT_FOUND);
+        } else {
+            Optional<UserInfo> userInfo = userInfoRepository.findById(userId);
+            return userInfo.get().getRoles();
+        }
+
     }
 
     @Override
-    public Role addPermissionOnRole(int roleId, int permissionKey) {
+    public void addPermissionOnRole(int roleId, int permissionKey) {
 
         // check role
         Optional<Role> roleOpt = roleRepository.findById(roleId);
@@ -92,11 +101,11 @@ public class SecurityServiceImpl implements SecurityService {
         role.getPermissions().add(permission);
         roleRepository.save(role);
 
-        return roleRepository.findById(roleId).get();
+        roleRepository.findById(roleId).get();
     }
 
     @Override
-    public Role removePermissionOnRole(int roleId, int permissionKey) {
+    public void removePermissionOnRole(int roleId, int permissionKey) {
 
         // check role
         Optional<Role> roleOpt = roleRepository.findById(roleId);
@@ -117,15 +126,8 @@ public class SecurityServiceImpl implements SecurityService {
         role.getPermissions().remove(permission);
         roleRepository.save(role);
 
-        return roleRepository.findById(roleId).get();
+        roleRepository.findById(roleId).get();
     }
 
-
-
-//    @Override
-//    public List<Permission> getUserPermissions(long userId) {
-//        List<Permission> permissions = userInfoRepository.getUserPermissions(userId);
-//        return permissions;
-//    }
 
 }

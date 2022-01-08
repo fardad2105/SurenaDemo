@@ -36,15 +36,11 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userInfoRepository.existsUserInfoByUsername(userInfo.getUsername())) {
             throw new UserManagerException("User with this username:" + userInfo.getUsername() + " is Exists",HttpStatus.CONFLICT);
         } else {
-            SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date now = new Date();
-            userInfo.setCreateDate(create_date.format(now));
-
             // Encrypt Password
             userInfo.setPassword(MD5Util.string2MD5(userInfo.getPassword()));
-
+            return userInfoRepository.save(mapStructMapper.userInfoPostToUserInfoDto(userInfo));
         }
-        return userInfoRepository.save(mapStructMapper.userInfoPostToUserInfoDto(userInfo));
+
     }
 
     @Override
@@ -70,9 +66,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (!userInfoRepository.existsById(id)) {
             throw new UserManagerException("User with id: " + id + " is not exists",HttpStatus.NOT_FOUND);
         }
-        SimpleDateFormat modify_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date now = new Date();
-        return userInfoRepository.updateUserInfo(firstname, lastname, modify_date.format(now), id);
+        return userInfoRepository.updateUserInfo(firstname, lastname, id);
     }
 
     @Override
@@ -99,13 +93,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
-    public List<UserInfoDto> getUsersInfo() {
-        List<UserInfoDto> userInfoDtos = new ArrayList<>();
-        for (UserInfo users:
-             userInfoRepository.findAll()) {
-            userInfoDtos.add(mapStructMapper.userInfoDtoGetByUserInfo(users));
-        }
-        return userInfoDtos;
+    public List<UserInfo> getUsersInfo() {
+        return userInfoRepository.findAll();
     }
 
     @Override

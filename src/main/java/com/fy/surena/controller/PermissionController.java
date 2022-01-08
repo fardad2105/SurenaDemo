@@ -3,9 +3,11 @@ package com.fy.surena.controller;
 
 import com.fy.surena.exception.InputFieldException;
 import com.fy.surena.mapstruct.dtos.request.PermissionRequestDto;
+import com.fy.surena.mapstruct.dtos.response.PermissionResponseDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.Permission;
 import com.fy.surena.service.PermissionService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -20,26 +22,26 @@ public class PermissionController {
     private final PermissionService permissionService;
     private final MapStructMapper mapper;
 
-    public PermissionController(PermissionService permissionService, MapStructMapper mapper) {
+    public PermissionController(PermissionService permissionService, @Qualifier("mapStructMapperImpl") MapStructMapper mapper) {
         this.permissionService = permissionService;
         this.mapper = mapper;
     }
 
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addPermission(@RequestBody PermissionRequestDto permissionRequestDto,
-                                              BindingResult bindingResult) {
+    public ResponseEntity<PermissionResponseDto> addPermission(@RequestBody PermissionRequestDto permissionRequestDto,
+                                                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new InputFieldException(bindingResult);
         }
-        permissionService.savePermission(permissionRequestDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        PermissionResponseDto addedPermission = permissionService.savePermission(permissionRequestDto);
+        return ResponseEntity.ok(addedPermission);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable int id) {
+    public ResponseEntity<String> deleteById(@PathVariable int id) {
         permissionService.deletePermission(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("deleted successfully");
     }
 
     @PutMapping("/update/{id}")
@@ -60,12 +62,19 @@ public class PermissionController {
                     return new ResponseEntity<Permission>(HttpStatus.OK);
                 });
 
-        return new ResponseEntity<Permission>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/permissions")
-    public ResponseEntity<List<Permission>> getPermissions() {
-        List<Permission> permissions = permissionService.getPermissions();
-        return new ResponseEntity<List<Permission>>(permissions,HttpStatus.OK);
+    public ResponseEntity<List<PermissionResponseDto>> getPermissions() {
+        List<PermissionResponseDto> permissions = permissionService.getPermissions();
+        return ResponseEntity.ok(permissions);
+    }
+
+
+    @GetMapping("/get-user-permission/{userId}")
+    public ResponseEntity<List<Permission>> getUserPermissions(@PathVariable("userId") Long userId) {
+        List<Permission> permissions =  permissionService.getUserPermissions(userId);
+        return new ResponseEntity<>(permissions,HttpStatus.OK);
     }
 }

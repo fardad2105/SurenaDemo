@@ -8,6 +8,7 @@ import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.UserInfo;
 import com.fy.surena.repository.UserInfoRepository;
+import com.fy.surena.service.UserInfoService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.text.SimpleDateFormat;
@@ -25,150 +27,153 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest
+@Transactional
 class UserInfoServiceImplTest {
 
-    @Autowired
-    private UserInfoRepository userInfoRepository;
 
     @Autowired
-    private UserInfoController userInfoController;
+    private UserInfoService userInfoService;
 
     @Autowired
     private MapStructMapper mapStructMapper;
 
-    private UserInfoDto userInfoDto;
+    private UserInfoDto user;
 
-    private UserInfoDto userInfoDtoSave;
+    private UserInfo savedUser;
 
-    private UserInfo userInfo1;
 
     private UserInfoUpdateDto userInfoUpdateDto;
 
     @BeforeEach
     void setUp() {
-        SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date now = new Date();
 
-        userInfoDtoSave = new UserInfoDto();
-        userInfoDtoSave.setId(1L);
-        userInfoDtoSave.setUsername("Sara2121");
-        userInfoDtoSave.setPassword("147852369987");
-        userInfoDtoSave.setFirstname("Sara");
-        userInfoDtoSave.setLastname("Niazi");
-        userInfoDtoSave.setCreateDate(create_date.format(now));
-        userInfoDtoSave.setModifiedDate(create_date.format(now));
-
-
-        userInfoDto = new UserInfoDto();
-        userInfoDto.setId(1L);
-        userInfoDto.setUsername("Saman1010");
-        userInfoDto.setPassword("963852741");
-        userInfoDto.setFirstname("Saman");
-        userInfoDto.setLastname("Zamani");
-        userInfoDto.setCreateDate(create_date.format(now));
-        userInfoDto.setModifiedDate(create_date.format(now));
-        UserInfo userInfo = mapStructMapper.userInfoPostToUserInfoDto(userInfoDto);
-        userInfo1 = userInfoRepository.save(userInfo);
+        user = new UserInfoDto();
+        user.setId(1L);
+        user.setUsername("Sara2121");
+        user.setPassword("147852369987");
+        user.setFirstname("Sara");
+        user.setLastname("Niazi");
 
     }
 
     @AfterEach
     void tearDown() {
-        userInfoRepository.deleteByUsername(userInfoDto.getUsername());
-        userInfoRepository.deleteByUsername(userInfoDtoSave.getUsername());
+        if (savedUser != null) {
+            userInfoService.deleteUserInfoById(savedUser.getId());
+        }
     }
 
     @Test
     void save() {
-        BindingResult result = mock(BindingResult.class);
-        ResponseEntity<Void> responseEntity = userInfoController.create(userInfoDtoSave, result);
-        checkResponseStatusCode(HttpStatus.CREATED,responseEntity);
+        savedUser = userInfoService.save(user);
+        assertEquals(savedUser.getUsername(), user.getUsername());
     }
 
     @Test
     void save_failed() {
+        savedUser = userInfoService.save(user);
         UserInfoDto userInfoDtoSaveFailed = new UserInfoDto();
-        SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date now = new Date();
-
         userInfoDtoSaveFailed.setId(1L);
         userInfoDtoSaveFailed.setUsername("Sara2121");
         userInfoDtoSaveFailed.setPassword("147852369987");
         userInfoDtoSaveFailed.setFirstname("Sara");
         userInfoDtoSaveFailed.setLastname("Niazi");
-        userInfoDtoSaveFailed.setCreateDate(create_date.format(now));
-        userInfoDtoSaveFailed.setModifiedDate(create_date.format(now));
+        Exception exception = assertThrows(UserManagerException.class, () -> {
+            savedUser = userInfoService.save(userInfoDtoSaveFailed);
 
-        BindingResult result = mock(BindingResult.class);
-        if (userInfoRepository.existsUserInfoByUsername(userInfoDtoSaveFailed.getUsername())) {
-            throw new UserManagerException("User with this username:" + userInfoDtoSaveFailed.getUsername() + "is Exists",HttpStatus.CONFLICT);
-        }
-        else {
-            ResponseEntity<Void> responseEntity = userInfoController.create(userInfoDtoSave, result);
-            checkResponseStatusCode(HttpStatus.CREATED,responseEntity);
-        }
+        });
 
+        String expectedMessage = "User with this username:" + savedUser.getUsername() + " is Exists";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
     void deleteUserInfoById() {
-        ResponseEntity<Void> responseEntity = userInfoController.deleteById(userInfo1.getId());
-        checkResponseStatusCode(HttpStatus.OK,responseEntity);
+        savedUser = userInfoService.save(user);
+        userInfoService.deleteUserInfoById(savedUser.getId());
+        savedUser = null;
     }
 
 
     @Test
     void deleteUserInfoByUsername() {
-        ResponseEntity<Void> responseEntity = userInfoController.deleteByUsername(userInfo1.getUsername());
-        checkResponseStatusCode(HttpStatus.OK,responseEntity);
+        savedUser = userInfoService.save(user);
+        userInfoService.deleteByUsername(savedUser.getUsername());
+        savedUser = null;
     }
 
     @Test
     void editUserInfo() {
-        userInfoUpdateDto = new UserInfoUpdateDto();
-        userInfoUpdateDto.setFirstname("SaSan");
-        userInfoUpdateDto.setLastname("Zamaniiii");
-        ResponseEntity<UserInfoUpdateDto> responseEntity = userInfoController.
-                updateUserInfo(userInfo1.getId(),userInfoUpdateDto);
-        checkResponseStatusCode(HttpStatus.OK,responseEntity);
+        savedUser = userInfoService.save(user);
+        savedUser.setFirstname("SaSan");
+        savedUser.setLastname("Zamaniiii");
+        int update = userInfoService.EditUserInfo(savedUser.getFirstname(),savedUser.getLastname(),savedUser.getId());
+        assertEquals(update, 1);
+
     }
 
     @Test
     void editWhenUserNotExist() {
-        checkErrorResponseStatusCode(assertThrows(UserManagerException.class, () -> userInfoController.updateUserInfo(20L, new UserInfoUpdateDto("Ali","Zamani"))),
-                HttpStatus.NOT_FOUND);
+        Exception exception = assertThrows(UserManagerException.class, () -> {
+            userInfoService.EditUserInfo("Ali", "zamani", 5L);
+
+        });
+
+        String expectedMessage = "User with id: " + 5 + " is not exists";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+
     }
 
     @Test
     void deleteWhenUserWithIdNotExists() {
-        checkErrorResponseStatusCode(assertThrows(UserManagerException.class, ()-> userInfoController.deleteById(20l)),
-                HttpStatus.NOT_FOUND
-                );
+        Exception exception = assertThrows(UserManagerException.class, () -> {
+            userInfoService.deleteUserInfoById(5L);
+
+        });
+
+        String expectedMessage = "User with id: " + 5 + " is not exists";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
     void deleteWhenUserWithUsernameNotExists() {
-        checkErrorResponseStatusCode(assertThrows(UserManagerException.class, () -> userInfoController.deleteByUsername("Ali2105")),
-                HttpStatus.NOT_FOUND
-                );
+
+        Exception exception = assertThrows(UserManagerException.class, () -> {
+            userInfoService.deleteByUsername("Soheil");
+
+        });
+
+        String expectedMessage = "User with username: Soheil is not exists";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
     void getUserInfoById() {
-        ResponseEntity<UserInfoDto> responseEntity = userInfoController.getUserInfoById(userInfo1.getId());
-        checkResponseStatusCode(HttpStatus.OK,responseEntity);
+        savedUser = userInfoService.save(user);
+        UserInfoDto userInfoDto = userInfoService.getUserInfoById(savedUser.getId());
+        assertEquals(savedUser.getUsername(),userInfoDto.getUsername());
     }
 
     @Test
     void getUserInfoByUserName() {
-        ResponseEntity<UserInfoDto> responseEntity = userInfoController.getUserInfoByUsername(userInfo1.getUsername());
-        checkResponseStatusCode(HttpStatus.OK,responseEntity);
+        savedUser = userInfoService.save(user);
+        UserInfoDto userInfoDto = userInfoService.findByUsername(savedUser.getUsername());
+        assertEquals(savedUser.getUsername(),userInfoDto.getUsername());
     }
 
     @Test
     void getUsersInfo() {
-        ResponseEntity<List<UserInfoDto>> responseEntity = userInfoController.getAll();
-        checkResponseStatusCode(HttpStatus.OK,responseEntity);
+        savedUser = userInfoService.save(user);
+        List<UserInfo> userInfos = userInfoService.getUsersInfo();
+        assertTrue(userInfos.size() !=0);
     }
 
 

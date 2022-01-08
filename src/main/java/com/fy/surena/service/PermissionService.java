@@ -9,9 +9,10 @@ import java.util.Optional;
 
 public interface PermissionService {
 
-    Permission savePermission(PermissionRequestDto permission);
+    PermissionResponseDto savePermission(PermissionRequestDto permission);
     Optional<Permission> findById(int id);
     void deletePermission(int id);
-    Permission updatePermission(PermissionRequestDto permission);
-    List<Permission> getPermissions();
+    PermissionResponseDto updatePermission(PermissionRequestDto permission);
+    List<PermissionResponseDto> getPermissions();
+    List<Permission> getUserPermissions(long userId);
 }

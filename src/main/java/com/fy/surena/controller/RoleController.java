@@ -2,9 +2,11 @@ package com.fy.surena.controller;
 
 import com.fy.surena.exception.InputFieldException;
 import com.fy.surena.mapstruct.dtos.request.RoleRequestDto;
+import com.fy.surena.mapstruct.dtos.response.RoleResponseDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
 import com.fy.surena.model.Role;
 import com.fy.surena.service.RoleService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,7 +18,7 @@ import java.util.List;
 @RequestMapping("api/role")
 public class RoleController {
 
-    public RoleController(RoleService roleService, MapStructMapper mapper) {
+    public RoleController(RoleService roleService, @Qualifier("mapStructMapperImpl") MapStructMapper mapper) {
         this.roleService = roleService;
         this.mapper = mapper;
     }
@@ -27,23 +29,23 @@ public class RoleController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addRole(@RequestBody RoleRequestDto roleRequestDto,
+    public ResponseEntity<RoleResponseDto> addRole(@RequestBody RoleRequestDto roleRequestDto,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new InputFieldException(bindingResult);
         }
-        roleService.saveRole(roleRequestDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        RoleResponseDto savedRole =  roleService.saveRole(roleRequestDto);
+        return ResponseEntity.ok(savedRole);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable int id) {
+    public ResponseEntity<String> deleteById(@PathVariable int id) {
         roleService.deleteRole(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok("deleted successfully");
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable int id,
+    public ResponseEntity<RoleResponseDto> updateRole(@PathVariable int id,
                                            @RequestBody RoleRequestDto roleRequestDto) {
         roleService.findById(id)
                 .map(role -> {
@@ -52,19 +54,19 @@ public class RoleController {
                     role.setActive(roleRequestDto.isActive());
                     role.setDescription(roleRequestDto.getDescription());
                     role.setContent(roleRequestDto.getContent());
-                    roleService.updateRole(mapper.roleDtoGetByRole(role));
-                    return new ResponseEntity<Role>(HttpStatus.OK);
+                    RoleResponseDto updatedRole = roleService.updateRole(mapper.roleDtoGetByRole(role));
+                    return ResponseEntity.ok(updatedRole);
                 })
                 .orElseGet(() -> {
-                    roleService.saveRole(roleRequestDto);
-                    return new ResponseEntity<Role>(HttpStatus.OK);
+                    RoleResponseDto savedRole = roleService.saveRole(roleRequestDto);
+                    return ResponseEntity.ok(savedRole);
                 });
-        return new ResponseEntity<Role>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<List<RoleRequestDto>> getRoles() {
-        List<RoleRequestDto> roles = roleService.getRoles();
-        return new ResponseEntity<>(roles, HttpStatus.OK);
+    public ResponseEntity<List<Role>> getRoles() {
+        List<Role> roles = roleService.getRoles();
+        return ResponseEntity.ok(roles);
     }
 }

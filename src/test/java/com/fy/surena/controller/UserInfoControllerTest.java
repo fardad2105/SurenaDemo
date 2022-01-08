@@ -80,7 +80,7 @@ class UserInfoControllerTest {
 
     @BeforeEach
     void setUp() {
-        userInfo = new UserInfo(7L,"Soheil0101","5145897582","Soheil","zamaniiiii","","");
+        userInfo = new UserInfo(7L,"Soheil0101","5145897582","Soheil","zamaniiiii");
         mockMvc = MockMvcBuilders.standaloneSetup(userInfoController).build();
     }
 

@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public interface RoleService {
 
-    Role saveRole(RoleRequestDto role);
+    RoleResponseDto saveRole(RoleRequestDto role);
     Optional<Role> findById(int id);
     void deleteRole(int id);
-    Role updateRole(RoleRequestDto role);
-    List<RoleRequestDto> getRoles();
+    RoleResponseDto updateRole(RoleRequestDto role);
+    List<Role> getRoles();
 }

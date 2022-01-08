@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,17 +31,14 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Permission savePermission(PermissionRequestDto permission) {
+    public PermissionResponseDto savePermission(PermissionRequestDto permission) {
         if (permissionRepository.existsByTitle(permission.getTitle())) {
             throw new PermissionManagementException(HttpStatus.CONFLICT,
                     "permission with this" + permission.getTitle() + "is Exists");
         } else {
-            SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date now = new Date();
-            permission.setCreatedAt(create_date.format(now));
+            Permission savedPermission = permissionRepository.save(mapper.permissionGetBypermissionDto(permission));
+            return mapper.getPermissionResponseFromPermission(savedPermission);
         }
-        return permissionRepository.save(mapper.permissionGetBypermissionDto(permission));
-
     }
 
     @Override
@@ -65,20 +63,29 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Permission updatePermission(PermissionRequestDto permission) {
+    public PermissionResponseDto updatePermission(PermissionRequestDto permission) {
         if (!permissionRepository.existsByTitle(permission.getTitle())) {
             throw new PermissionManagementException(HttpStatus.NOT_FOUND,
                     "permission with this info not found");
         } else {
-            SimpleDateFormat update_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date now = new Date();
-            permission.setUpdatedAt(update_date.format(now));
-            return permissionRepository.save(mapper.permissionGetBypermissionDto(permission));
+            Permission updatedPermission =  permissionRepository.save(mapper.permissionGetBypermissionDto(permission));
+            return mapper.getPermissionResponseFromPermission(updatedPermission);
         }
     }
 
     @Override
-    public List<Permission> getPermissions() {
-        return permissionRepository.findAll();
+    public List<PermissionResponseDto> getPermissions() {
+        List<PermissionResponseDto> permissionResponseDtos = new ArrayList<>();
+        for (Permission pr:
+             permissionRepository.findAll()) {
+             permissionResponseDtos.add(mapper.getPermissionResponseFromPermission(pr));
+        }
+        return permissionResponseDtos;
     }
+
+    @Override
+    public List<Permission> getUserPermissions(long userId) {
+        return permissionRepository.getAllByUserId(userId);
+    }
+
 }

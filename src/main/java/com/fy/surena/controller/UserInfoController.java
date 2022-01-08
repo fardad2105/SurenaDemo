@@ -5,6 +5,7 @@ import com.fy.surena.mapstruct.dtos.ChangePassDto;
 import com.fy.surena.mapstruct.dtos.UserInfoDto;
 import com.fy.surena.mapstruct.dtos.UserInfoUpdateDto;
 import com.fy.surena.model.Permission;
+import com.fy.surena.model.UserInfo;
 import com.fy.surena.service.UserInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,12 +25,12 @@ public class UserInfoController {
 
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody UserInfoDto userInfoDto,
-                                       BindingResult bindingResult) {
+    public ResponseEntity<UserInfo> create(@Valid @RequestBody UserInfoDto userInfoDto,
+                                           BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             throw new InputFieldException(bindingResult);
-        userInfoService.save(userInfoDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        UserInfo userInfo = userInfoService.save(userInfoDto);
+        return  ResponseEntity.ok(userInfo);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -67,9 +68,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserInfoDto>> getAll() {
-        List<UserInfoDto> userInfos = userInfoService.getUsersInfo();
-        return new ResponseEntity<List<UserInfoDto>>(userInfos, HttpStatus.OK);
+    public ResponseEntity<List<UserInfo>> getAll() {
+        List<UserInfo> userInfos = userInfoService.getUsersInfo();
+        return ResponseEntity.ok(userInfos);
 
     }
 

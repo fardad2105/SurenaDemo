@@ -8,6 +8,7 @@ import com.fy.surena.model.Permission;
 import com.fy.surena.model.Role;
 import com.fy.surena.repository.RoleRepository;
 import com.fy.surena.service.RoleService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,22 +24,20 @@ public class RoleServiceImpl implements RoleService {
 
     private MapStructMapper mapper;
 
-    public RoleServiceImpl(RoleRepository roleRepository, MapStructMapper mapper) {
+    public RoleServiceImpl(RoleRepository roleRepository, @Qualifier("mapStructMapperImpl") MapStructMapper mapper) {
         this.roleRepository = roleRepository;
         this.mapper = mapper;
     }
 
 
     @Override
-    public Role saveRole(RoleRequestDto role) {
+    public RoleResponseDto saveRole(RoleRequestDto role) {
         if (roleRepository.existsByTitle(role.getTitle())) {
             throw new RoleManagementException(HttpStatus.CONFLICT,"Role with this" + role.getTitle() + "is Exists");
         } else {
-            SimpleDateFormat create_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date now = new Date();
-            role.setCreateAtDate(create_date.format(now));
+            Role savedRole =  roleRepository.save(mapper.roleGetByRoleRequestDto(role));
+            return mapper.getRoleResponseDto(savedRole);
         }
-        return roleRepository.save(mapper.roleGetByRoleRequestDto(role));
     }
 
     @Override
@@ -61,24 +60,17 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role updateRole(RoleRequestDto role) {
+    public RoleResponseDto updateRole(RoleRequestDto role) {
         if (!roleRepository.existsByTitle(role.getTitle())) {
             throw new RoleManagementException(HttpStatus.NOT_FOUND,"Role with this info not found!");
         } else {
-            SimpleDateFormat update_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            Date now = new Date();
-            role.setUpdateAtDate(update_date.format(now));
-            return roleRepository.save(mapper.roleGetByRoleRequestDto(role));
+            Role updatedRole = roleRepository.save(mapper.roleGetByRoleRequestDto(role));
+            return mapper.getRoleResponseDto(updatedRole);
         }
     }
 
     @Override
-    public List<RoleRequestDto> getRoles() {
-        List<RoleRequestDto> roleResponseDtos = new ArrayList<>();
-        for (Role role:
-             roleRepository.findAll()) {
-            roleResponseDtos.add(mapper.roleDtoGetByRole(role));
-        }
-        return roleResponseDtos;
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
     }
 }

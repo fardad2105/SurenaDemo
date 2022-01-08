@@ -12,8 +12,6 @@ public class RoleRequestDto {
     private String description;
     private String content;
     private boolean active;
-    private String createAtDate;
-    private String updateAtDate;
 
     public int getId() {
         return id;
@@ -55,20 +53,5 @@ public class RoleRequestDto {
         this.active = active;
     }
 
-    public String getCreateAtDate() {
-        return createAtDate;
-    }
-
-    public void setCreateAtDate(String createAtDate) {
-        this.createAtDate = createAtDate;
-    }
-
-    public String getUpdateAtDate() {
-        return updateAtDate;
-    }
-
-    public void setUpdateAtDate(String updateAtDate) {
-        this.updateAtDate = updateAtDate;
-    }
 
 }

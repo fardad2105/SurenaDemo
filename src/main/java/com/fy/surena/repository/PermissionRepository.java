@@ -16,4 +16,8 @@ public interface PermissionRepository extends JpaRepository<Permission,Integer> 
 
     Optional<Permission> findByTitle(String permissionKey);
 
+    @Query(value = "select * from Permission p where p.id in" +
+            " (select permission_id from role_permission where role_id in (select role_id from user_role where user_id = ?1))",nativeQuery = true)
+    List<Permission> getAllByUserId(long userId);
+
 }
