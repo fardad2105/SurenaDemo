@@ -12,6 +12,6 @@ public interface RoleService {
     RoleResponseDto saveRole(RoleRequestDto role);
     Optional<Role> findById(int id);
     void deleteRole(int id);
-    RoleResponseDto updateRole(RoleRequestDto role);
+    RoleResponseDto updateRole(int id, RoleRequestDto role);
     List<Role> getRoles();
 }

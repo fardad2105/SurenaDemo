@@ -89,9 +89,10 @@ class SecurityServiceImplTest {
 
     @Test
     void assignUserRole() {
+        int userRoles = securityService.getUserRoles(savedUserInfo.getId()).size();
         securityService.assignUserRole(savedUserInfo.getId(),savedRole.getId());
         Set<Role> roles = securityService.getUserRoles(savedUserInfo.getId());
-        assertTrue(roles.size() != 0);
+        assertEquals(roles.size(), userRoles + 1);
         securityService.unassignUserRole(savedUserInfo.getId(),savedRole.getId());
     }
 
@@ -107,25 +108,27 @@ class SecurityServiceImplTest {
 
     @Test
     void getUserRoles() {
+        int userRoles = securityService.getUserRoles(savedUserInfo.getId()).size();
         securityService.assignUserRole(savedUserInfo.getId(),savedRole.getId());
         Set<Role> roles = securityService.getUserRoles(savedUserInfo.getId());
-        assertTrue(roles.size() != 0);
+        assertEquals(roles.size(), userRoles + 1);
         securityService.unassignUserRole(savedUserInfo.getId(),savedRole.getId());
     }
 
     @Test
     void addPermissionOnRole() {
+        int rolePermissions = roleService.findById(savedRole.getId()).get().getPermissions().size();
         securityService.addPermissionOnRole(savedRole.getId(),savedPermission.getId());
         Set<Permission> permissions = roleService.findById(savedRole.getId()).get().getPermissions();
-        assertTrue(permissions.size() != 0);
+        assertEquals(permissions.size(), rolePermissions + 1);
         securityService.removePermissionOnRole(savedRole.getId(),savedPermission.getId());
     }
 
     @Test
     void removePermissionOnRole() {
         Set<Permission> permissions;
-       securityService.addPermissionOnRole(savedRole.getId(),savedPermission.getId());
-       permissions = roleService.findById(savedRole.getId()).get().getPermissions();
+        securityService.addPermissionOnRole(savedRole.getId(),savedPermission.getId());
+        permissions = roleService.findById(savedRole.getId()).get().getPermissions();
         assertTrue(permissions.size() != 0);
         securityService.removePermissionOnRole(savedRole.getId(),savedPermission.getId());
         permissions = roleService.findById(savedRole.getId()).get().getPermissions();

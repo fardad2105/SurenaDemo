@@ -45,24 +45,10 @@ public class PermissionController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Permission> updatePermission(@PathVariable int id,
+    public ResponseEntity<PermissionResponseDto> updatePermission(@PathVariable int id,
                                                        @RequestBody PermissionRequestDto permissionRequestDto) {
-        permissionService.findById(id)
-                .map(permission -> {
-                    permission.setId(id);
-                    permission.setTitle(permissionRequestDto.getTitle());
-                    permission.setActive(permissionRequestDto.isActive());
-                    permission.setDescription(permissionRequestDto.getDescription());
-                    permission.setContent(permissionRequestDto.getContent());
-                    permissionService.updatePermission(mapper.permissionDtoGetBypermission(permission));
-                    return new ResponseEntity<Permission>(HttpStatus.OK);
-                })
-                .orElseGet(() -> {
-                    permissionService.savePermission(permissionRequestDto);
-                    return new ResponseEntity<Permission>(HttpStatus.OK);
-                });
-
-        return new ResponseEntity<>(HttpStatus.OK);
+       PermissionResponseDto updatedPermission = permissionService.updatePermission(id, permissionRequestDto);
+       return ResponseEntity.ok(updatedPermission);
     }
 
     @GetMapping("/permissions")

@@ -12,7 +12,7 @@ public interface PermissionService {
     PermissionResponseDto savePermission(PermissionRequestDto permission);
     Optional<Permission> findById(int id);
     void deletePermission(int id);
-    PermissionResponseDto updatePermission(PermissionRequestDto permission);
+    PermissionResponseDto updatePermission(int id, PermissionRequestDto permission);
     List<PermissionResponseDto> getPermissions();
     List<Permission> getUserPermissions(long userId);
 }

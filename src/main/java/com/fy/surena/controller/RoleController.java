@@ -47,21 +47,8 @@ public class RoleController {
     @PutMapping("/update/{id}")
     public ResponseEntity<RoleResponseDto> updateRole(@PathVariable int id,
                                            @RequestBody RoleRequestDto roleRequestDto) {
-        roleService.findById(id)
-                .map(role -> {
-                    role.setId(id);
-                    role.setTitle(roleRequestDto.getTitle());
-                    role.setActive(roleRequestDto.isActive());
-                    role.setDescription(roleRequestDto.getDescription());
-                    role.setContent(roleRequestDto.getContent());
-                    RoleResponseDto updatedRole = roleService.updateRole(mapper.roleDtoGetByRole(role));
-                    return ResponseEntity.ok(updatedRole);
-                })
-                .orElseGet(() -> {
-                    RoleResponseDto savedRole = roleService.saveRole(roleRequestDto);
-                    return ResponseEntity.ok(savedRole);
-                });
-        return new ResponseEntity<>(HttpStatus.OK);
+        RoleResponseDto roleResponseDto = roleService.updateRole(id, roleRequestDto);
+        return ResponseEntity.ok(roleResponseDto);
     }
 
     @GetMapping("/roles")

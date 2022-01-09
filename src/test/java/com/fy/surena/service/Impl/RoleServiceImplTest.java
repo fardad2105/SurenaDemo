@@ -1,5 +1,7 @@
 package com.fy.surena.service.Impl;
 
+import com.fy.surena.exception.PermissionManagementException;
+import com.fy.surena.exception.RoleManagementException;
 import com.fy.surena.mapstruct.dtos.request.RoleRequestDto;
 import com.fy.surena.mapstruct.dtos.response.RoleResponseDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
@@ -73,6 +75,16 @@ class RoleServiceImplTest {
         deletedRole.setActive(true);
         RoleResponseDto dr = roleService.saveRole(deletedRole);
         roleService.deleteRole(dr.getId());
+
+        Exception exception = assertThrows(RoleManagementException.class, () -> {
+            roleService.deleteRole(dr.getId());
+
+        });
+
+        String expectedMessage = "Role with id: " + dr.getId() + "does not exists";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
@@ -80,15 +92,19 @@ class RoleServiceImplTest {
         savedRole = roleService.saveRole(role);
         savedRole.setActive(false);
         Role updatedRole = mapper.roleGetByRoleResponseDto(savedRole);
-        RoleResponseDto updated = roleService.updateRole(mapper.roleDtoGetByRole(updatedRole));
+        RoleResponseDto updated = roleService.updateRole(savedRole.getId(),mapper.roleDtoGetByRole(updatedRole));
         assertFalse(updated.isActive());
     }
 
 
     @Test
     void getRoles() {
-        List<Role> roleRequestDtos = roleService.getRoles();
-        assertTrue(roleRequestDtos.size() != 0);
+        List<Role> rolesBeforeAddedNewRole = roleService.getRoles();
+        int countRoles = rolesBeforeAddedNewRole.size();
+        savedRole = roleService.saveRole(role);
+        List<Role> rolesAfterAddedNewRole = roleService.getRoles();
+        int countRolesAfterUpdate = rolesAfterAddedNewRole.size();
+        assertEquals(countRoles + 1, countRolesAfterUpdate);
     }
 
 }

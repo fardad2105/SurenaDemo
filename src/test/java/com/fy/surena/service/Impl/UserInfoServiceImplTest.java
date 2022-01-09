@@ -22,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -93,6 +94,13 @@ class UserInfoServiceImplTest {
     void deleteUserInfoById() {
         savedUser = userInfoService.save(user);
         userInfoService.deleteUserInfoById(savedUser.getId());
+
+        List<UserInfo> userInfos = userInfoService.getUsersInfo();
+        List<UserInfo> userInfoList =  userInfos.stream()
+                .filter(userInfo -> userInfo.getId().equals(savedUser.getId()))
+                .collect(Collectors.toList());
+
+        assertEquals(userInfoList.size(), 0);
         savedUser = null;
     }
 
@@ -101,6 +109,13 @@ class UserInfoServiceImplTest {
     void deleteUserInfoByUsername() {
         savedUser = userInfoService.save(user);
         userInfoService.deleteByUsername(savedUser.getUsername());
+
+        List<UserInfo> userInfos = userInfoService.getUsersInfo();
+        List<UserInfo> userInfoList =  userInfos.stream()
+                .filter(userInfo -> userInfo.getUsername().equals(savedUser.getUsername()))
+                .collect(Collectors.toList());
+
+        assertEquals(userInfoList.size(), 0);
         savedUser = null;
     }
 

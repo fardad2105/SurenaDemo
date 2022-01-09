@@ -45,7 +45,11 @@ public class RoleServiceImpl implements RoleService {
         if (!roleRepository.existsById(id)) {
             throw new RoleManagementException(HttpStatus.NOT_FOUND,"Role with id: " + id + "does not exists");
         } else {
-            return roleRepository.findById(id);
+            if (roleRepository.findById(id).isPresent()){
+                return roleRepository.findById(id);
+            } else {
+                return Optional.empty();
+            }
         }
     }
 
@@ -60,13 +64,30 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleResponseDto updateRole(RoleRequestDto role) {
-        if (!roleRepository.existsByTitle(role.getTitle())) {
+    public RoleResponseDto updateRole(int id, RoleRequestDto roleRequestDto) {
+        if (!roleRepository.existsByTitle(roleRequestDto.getTitle())) {
             throw new RoleManagementException(HttpStatus.NOT_FOUND,"Role with this info not found!");
         } else {
-            Role updatedRole = roleRepository.save(mapper.roleGetByRoleRequestDto(role));
-            return mapper.getRoleResponseDto(updatedRole);
+            Optional<Role> findUpdatedRole = roleRepository.findById(id);
+            if (findUpdatedRole.isPresent()) {
+                findUpdatedRole.map(role -> {
+                    role.setId(id);
+                    role.setTitle(roleRequestDto.getTitle());
+                    role.setActive(roleRequestDto.isActive());
+                    role.setDescription(roleRequestDto.getDescription());
+                    role.setContent(roleRequestDto.getContent());
+                    Role updatedRole = roleRepository.save(role);
+                    return mapper.getRoleResponseDto(updatedRole);
+                }).orElseGet(() -> {
+                    Role savedRole = roleRepository.save(mapper.roleGetByRoleRequestDto(roleRequestDto));
+                    return mapper.getRoleResponseDto(savedRole);
+                });
+            } else {
+                return null;
+            }
+
         }
+        return mapper.getRoleResponseDto(mapper.roleGetByRoleRequestDto(roleRequestDto));
     }
 
     @Override

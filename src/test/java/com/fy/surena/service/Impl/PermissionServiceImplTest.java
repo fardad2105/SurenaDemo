@@ -1,5 +1,7 @@
 package com.fy.surena.service.Impl;
 
+import com.fy.surena.exception.PermissionManagementException;
+import com.fy.surena.exception.UserManagerException;
 import com.fy.surena.mapstruct.dtos.request.PermissionRequestDto;
 import com.fy.surena.mapstruct.dtos.response.PermissionResponseDto;
 import com.fy.surena.mapstruct.mappers.MapStructMapper;
@@ -71,20 +73,36 @@ class PermissionServiceImplTest {
         deletePermission.setActive(true);
         PermissionResponseDto dp = permissionService.savePermission(deletePermission);
         permissionService.deletePermission(dp.getId());
+
+        Exception exception = assertThrows(PermissionManagementException.class, () -> {
+            permissionService.deletePermission(dp.getId());
+
+        });
+
+        String expectedMessage = "permission with this" + dp.getId() + "does not exists";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
     void updatePermission() {
         savedPermission = permissionService.savePermission(permissionRequestDto);
         savedPermission.setActive(false);
-        Permission permission = mapper.permissionGetByPermissionResponseDto(savedPermission);
-        PermissionResponseDto updatePermission = permissionService.updatePermission(mapper.permissionDtoGetBypermission(permission));
+        Permission updatedPermission = mapper.permissionGetByPermissionResponseDto(savedPermission);
+        PermissionResponseDto updatePermission = permissionService.updatePermission(savedPermission.getId(),
+                mapper.permissionDtoGetBypermission(updatedPermission));
         assertFalse(updatePermission.isActive());
     }
 
     @Test
     void getPermissions() {
         List<PermissionResponseDto> permissions = permissionService.getPermissions();
-        assertTrue(permissions.size() != 0);
+        int countPermissions = permissions.size();
+        savedPermission = permissionService.savePermission(permissionRequestDto);
+        List<PermissionResponseDto> permissionsAfterUpdate = permissionService.getPermissions();
+        int countPermissionAfterUpdate = permissionsAfterUpdate.size();
+
+        assertEquals(countPermissionAfterUpdate, countPermissions + 1);
     }
 }

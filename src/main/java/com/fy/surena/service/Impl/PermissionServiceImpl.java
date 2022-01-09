@@ -47,7 +47,11 @@ public class PermissionServiceImpl implements PermissionService {
             throw new PermissionManagementException(HttpStatus.NOT_FOUND,
                     "permission with this" + id + "does not exists");
         } else {
-            return permissionRepository.findById(id);
+            if (permissionRepository.findById(id).isPresent()) {
+                return permissionRepository.findById(id);
+            } else {
+                return Optional.empty();
+            }
         }
     }
 
@@ -63,14 +67,32 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public PermissionResponseDto updatePermission(PermissionRequestDto permission) {
-        if (!permissionRepository.existsByTitle(permission.getTitle())) {
+    public PermissionResponseDto updatePermission(int id, PermissionRequestDto permissionRequestDto) {
+        if (!permissionRepository.existsByTitle(permissionRequestDto.getTitle())) {
             throw new PermissionManagementException(HttpStatus.NOT_FOUND,
                     "permission with this info not found");
         } else {
-            Permission updatedPermission =  permissionRepository.save(mapper.permissionGetBypermissionDto(permission));
-            return mapper.getPermissionResponseFromPermission(updatedPermission);
+           Optional<Permission> findUpdatePermission = permissionRepository.findById(id);
+           if (findUpdatePermission.isPresent()) {
+               findUpdatePermission.map(permission -> {
+                   permission.setId(id);
+                   permission.setTitle(permissionRequestDto.getTitle());
+                   permission.setActive(permissionRequestDto.isActive());
+                   permission.setDescription(permissionRequestDto.getDescription());
+                   permission.setContent(permissionRequestDto.getContent());
+                   Permission updatedPermission = permissionRepository.save(permission);
+                   return mapper.getPermissionResponseFromPermission(updatedPermission);
+               }).orElseGet(() -> {
+                   Permission savedPermission = permissionRepository.save(mapper.permissionGetBypermissionDto(permissionRequestDto));
+                   return mapper.getPermissionResponseFromPermission(savedPermission);
+               });
+           } else {
+               return null;
+           }
+
         }
+        return mapper.getPermissionResponseFromPermission(mapper.permissionGetBypermissionDto(permissionRequestDto));
+
     }
 
     @Override

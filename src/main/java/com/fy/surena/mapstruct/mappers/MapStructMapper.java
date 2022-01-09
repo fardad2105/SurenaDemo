@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 
 @Mapper(componentModel = "spring")
-@Component
-@Qualifier
 public interface MapStructMapper {
 
     UserInfo userInfoPostToUserInfoDto(
